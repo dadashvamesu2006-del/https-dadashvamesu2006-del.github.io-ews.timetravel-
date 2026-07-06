@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🌍 Time Travel Explorers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0a0e27;
+    --bg-card: rgba(255,255,255,0.06);
+    --text-primary: #ffffff;
+    --text-muted: #8892b0;
+    --gold: #f5a623;
+    --gold-glow: rgba(245,166,35,0.3);
+    --shadow: 0 8px 40px rgba(0,0,0,0.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image: radial-gradient(ellipse at 10% 20%, rgba(74,144,217,0.08) 0%, transparent 50%),
+                      radial-gradient(ellipse at 90% 80%, rgba(155,89,182,0.08) 0%, transparent 50%);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ===== AVATAR OVERLAY ===== */
+  .avatar-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(10,14,39,0.95);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.6s ease;
+    padding: 20px;
+  }
+  .avatar-overlay.hidden { display: none; }
+  @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+  .avatar-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 28px;
+    padding: 32px 28px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .avatar-box h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.6rem;
+    background: linear-gradient(135deg, var(--gold), #f1c40f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+  }
+  .avatar-box .sub { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 16px; }
+
+  .avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .avatar-option {
+    background: rgba(255,255,255,0.04);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 10px 4px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+  }
+  .avatar-option:hover { background: rgba(255,255,255,0.08); }
+  .avatar-option.selected {
+    border-color: var(--gold);
+    background: rgba(245,166,35,0.12);
+    box-shadow: 0 0 30px rgba(245,166,35,0.1);
+  }
+  .avatar-option .emoji { font-size: 2rem; display: block; }
+  .avatar-option .name { font-size: 0.5rem; color: var(--text-muted); margin-top: 2px; }
+
+  /* ===== FORM FIELDS ===== */
+  .form-group {
+    text-align: left;
+    margin-bottom: 10px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+    font-weight: 600;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+    color: white;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .form-group input:focus { border-color: var(--gold); }
+  .form-group input::placeholder { color: var(--text-muted); font-size: 0.85rem; }
+  .form-group .hint {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .start-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--gold), #f1c40f);
+    color: #0a0e27;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 8px;
+  }
+  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,166,35,0.3); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 500px) {
+    .avatar-box { padding: 24px 16px; }
+    .avatar-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .avatar-option .emoji { font-size: 1.6rem; }
+    .avatar-box h1 { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== AVATAR SELECTION ===== -->
+<div class="avatar-overlay" id="avatarOverlay">
+  <div class="avatar-box">
+    <h1>🌍 Time Travel Explorers</h1>
+    <div class="sub">Choose your explorer identity</div>
+
+    <div class="avatar-grid" id="avatarGrid">
+      <div class="avatar-option selected" data-avatar="🧑‍🚀">
+        <span class="emoji">🧑‍🚀</span>
+        <span class="name">Astronaut</span>
+      </div>
+      <div class="avatar-option" data-avatar="🧙‍♂️">
+        <span class="emoji">🧙‍♂️</span>
+        <span class="name">Wizard</span>
+      </div>
+      <div class="avatar-option" data-avatar="🕵️‍♂️">
+        <span class="emoji">🕵️‍♂️</span>
+        <span class="name">Detective</span>
+      </div>
+      <div class="avatar-option" data-avatar="🧜‍♀️">
+        <span class="emoji">🧜‍♀️</span>
+        <span class="name">Mermaid</span>
+      </div>
+      <div class="avatar-option" data-avatar="🤖">
+        <span class="emoji">🤖</span>
+        <span class="name">Robot</span>
+      </div>
+      <div class="avatar-option" data-avatar="🧝‍♀️">
+        <span class="emoji">🧝‍♀️</span>
+        <span class="name">Elf</span>
+      </div>
+      <div class="avatar-option" data-avatar="🦸‍♂️">
+        <span class="emoji">🦸‍♂️</span>
+        <span class="name">Hero</span>
+      </div>
+      <div class="avatar-option" data-avatar="🧚‍♀️">
+        <span class="emoji">🧚‍♀️</span>
+        <span class="name">Fairy</span>
+      </div>
+    </div>
+
+    <!-- ===== NAME FIELD ===== -->
+    <div class="form-group">
+      <label for="playerName">👤 Your Name</label>
+      <input type="text" id="playerName" placeholder="Enter your name..." value="Explorer">
+      <div class="hint">What should we call you on your journey?</div>
+    </div>
+
+    <!-- ===== AGE FIELD ===== -->
+    <div class="form-group">
+      <label for="playerAge">🎂 Your Age</label>
+      <input type="number" id="playerAge" placeholder="How old are you?" min="5" max="99" value="12">
+      <div class="hint">Tell us your age</div>
+    </div>
+
+    <button class="start-btn" id="startBtn">🚀 Start Your Journey</button>
+  </div>
+</div>
+
+<!-- ===== MAIN APP (Placeholder) ===== -->
+<div class="app" id="app" style="display:none; padding:20px; text-align:center; min-height:80vh; display:none; align-items:center; justify-content:center; flex-direction:column;">
+  <div style="font-size:3rem;">🚀</div>
+  <h1 style="font-family:'Orbitron',monospace; margin-top:10px;">Welcome, <span id="displayName">Explorer</span>!</h1>
+  <p style="color:var(--text-muted);">Your adventure is ready to begin!</p>
+  <p style="color:var(--gold);font-size:0.8rem;margin-top:20px;">Avatar: <span id="displayAvatar">🧑‍🚀</span> | Age: <span id="displayAge">12</span></p>
+  <button onclick="location.reload()" style="margin-top:20px;padding:12px 30px;border-radius:30px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:white;cursor:pointer;">🔄 Change Avatar</button>
+</div>
+
+<script>
+// ============================================================
+// AVATAR SELECTION
+// ============================================================
+let selectedAvatar = '🧑‍🚀';
+
+document.querySelectorAll('.avatar-option').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedAvatar = el.dataset.avatar;
+  });
+});
+
+// ============================================================
+// START BUTTON
+// ============================================================
+document.getElementById('startBtn').addEventListener('click', () => {
+  const name = document.getElementById('playerName').value.trim() || 'Explorer';
+  const age = document.getElementById('playerAge').value || '12';
+
+  // Show main app
+  document.getElementById('avatarOverlay').classList.add('hidden');
+  const app = document.getElementById('app');
+  app.style.display = 'flex';
+  document.getElementById('displayName').textContent = name;
+  document.getElementById('displayAvatar').textContent = selectedAvatar;
+  document.getElementById('displayAge').textContent = age;
+
+  // Save to localStorage
+  localStorage.setItem('explorerName', name);
+  localStorage.setItem('explorerAvatar', selectedAvatar);
+  localStorage.setItem('explorerAge', age);
+});
+</script>
+</body>
+</html>
