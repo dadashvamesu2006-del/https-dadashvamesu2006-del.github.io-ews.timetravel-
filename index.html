@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Time Travel Explorers</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0a0e27;
+    --text-primary: #ffffff;
+    --text-muted: #8892b0;
+    --gold: #f5a623;
+    --gold-glow: rgba(245,166,35,0.3);
+    --green: #2ecc71;
+    --red: #e74c5e;
+    --shadow: 0 8px 40px rgba(0,0,0,0.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image: radial-gradient(ellipse at 10% 20%, rgba(74,144,217,0.08) 0%, transparent 50%),
+                      radial-gradient(ellipse at 90% 80%, rgba(155,89,182,0.08) 0%, transparent 50%);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ===== NOTIFICATION BANNER ===== */
+  .notification-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2000;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, var(--gold), #f1c40f);
+    color: #0a0e27;
+    font-weight: 700;
+    text-align: center;
+    transform: translateY(-100%);
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 30px rgba(245,166,35,0.4);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+  }
+  .notification-banner.show {
+    transform: translateY(0);
+  }
+  .notification-banner i { margin-right: 8px; }
+  .notification-banner .close-btn {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.1);
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: #0a0e27;
+  }
+
+  /* ===== AVATAR OVERLAY ===== */
+  .avatar-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(10,14,39,0.95);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.6s ease;
+    padding: 20px;
+  }
+  .avatar-overlay.hidden { display: none; }
+  @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+  .avatar-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 28px;
+    padding: 32px 28px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .avatar-box h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.6rem;
+    background: linear-gradient(135deg, var(--gold), #f1c40f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+  }
+  .avatar-box .sub { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 16px; }
+
+  .avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .avatar-option {
+    background: rgba(255,255,255,0.04);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 10px 4px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+  }
+  .avatar-option:hover { background: rgba(255,255,255,0.08); }
+  .avatar-option.selected {
+    border-color: var(--gold);
+    background: rgba(245,166,35,0.12);
+    box-shadow: 0 0 30px rgba(245,166,35,0.1);
+  }
+  .avatar-option .avatar-icon {
+    font-size: 2rem;
+    display: block;
+    color: var(--text-primary);
+  }
+  .avatar-option .name {
+    font-size: 0.5rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .form-group {
+    text-align: left;
+    margin-bottom: 10px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+    font-weight: 600;
+  }
+  .form-group label i { margin-right: 6px; }
+  .form-group input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+    color: white;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .form-group input:focus { border-color: var(--gold); }
+  .form-group input::placeholder { color: var(--text-muted); font-size: 0.85rem; }
+  .form-group .hint { font-size: 0.6rem; color: var(--text-muted); margin-top: 2px; }
+
+  .start-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--gold), #f1c40f);
+    color: #0a0e27;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 8px;
+  }
+  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,166,35,0.3); }
+  .start-btn i { margin-right: 8px; }
+
+  /* ===== MAIN APP ===== */
+  .app {
+    display: none;
+    padding: 16px 20px 80px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .app.active { display: block; animation: fadeIn 0.5s ease; }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .top-bar .brand {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--gold), #f1c40f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .top-bar .brand i { -webkit-text-fill-color: var(--gold); margin-right: 6px; }
+  .top-bar .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .top-bar .user-info .avatar-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0a0e27;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+  .top-bar .coins {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(245,166,35,0.12);
+    padding: 4px 12px;
+    border-radius: 30px;
+    border: 1px solid rgba(245,166,35,0.2);
+    font-weight: 600;
+    color: var(--gold);
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    background: rgba(255,255,255,0.03);
+    border-radius: 14px;
+    padding: 4px;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  .nav-tab {
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    flex: 1;
+    text-align: center;
+  }
+  .nav-tab i { margin-right: 4px; }
+  .nav-tab:hover { color: white; background: rgba(255,255,255,0.04); }
+  .nav-tab.active {
+    background: rgba(245,166,35,0.12);
+    color: var(--gold);
+    box-shadow: 0 0 20px rgba(245,166,35,0.05);
+  }
+
+  .page { display: none; animation: fadeIn 0.4s ease; }
+  .page.active { display: block; }
+
+  /* ===== HOME PAGE ===== */
+  .clock-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  @media (max-width: 700px) { .clock-section { grid-template-columns: 1fr; } }
+
+  .clock-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+  }
+  .clock-card .label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .clock-card .label i { margin-right: 4px; }
+
+  .analog-clock {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: white;
+    position: relative;
+    margin: 0 auto 10px;
+    box-shadow: 0 0 30px rgba(255,255,255,0.06), inset 0 0 20px rgba(0,0,0,0.04);
+  }
+  .analog-clock .center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: #1a1a2e;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+  }
+  .analog-clock .hand {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform-origin: bottom center;
+    border-radius: 4px;
+  }
+  .analog-clock .hour-hand {
+    width: 4px;
+    height: 35px;
+    background: #1a1a2e;
+    transform: translateX(-50%) rotate(0deg);
+  }
+  .analog-clock .minute-hand {
+    width: 3px;
+    height: 48px;
+    background: #2c3e50;
+    transform: translateX(-50%) rotate(0deg);
+  }
+  .analog-clock .second-hand {
+    width: 1.5px;
+    height: 52px;
+    background: #e74c5e;
+    transform: translateX(-50%) rotate(0deg);
+  }
+  .analog-clock .number {
+    position: absolute;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    color: #1a1a2e;
+    font-weight: 700;
+    transform: translate(-50%, -50%);
+  }
+  .analog-clock .number-12 { top: 8%; left: 50%; }
+  .analog-clock .number-1 { top: 18%; left: 70%; }
+  .analog-clock .number-2 { top: 35%; left: 88%; }
+  .analog-clock .number-3 { top: 50%; left: 94%; }
+  .analog-clock .number-4 { top: 65%; left: 88%; }
+  .analog-clock .number-5 { top: 82%; left: 70%; }
+  .analog-clock .number-6 { top: 92%; left: 50%; }
+  .analog-clock .number-7 { top: 82%; left: 30%; }
+  .analog-clock .number-8 { top: 65%; left: 12%; }
+  .analog-clock .number-9 { top: 50%; left: 6%; }
+  .analog-clock .number-10 { top: 35%; left: 12%; }
+  .analog-clock .number-11 { top: 18%; left: 30%; }
+
+  .digital-time {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+  .digital-time .ampm {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  /* ===== TIME SENTENCE BUILDER ===== */
+  .sentence-builder {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-top: 16px;
+  }
+  .sentence-builder .title {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .sentence-builder .title i { margin-right: 4px; }
+  .sentence-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    min-height: 44px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    border: 1px dashed rgba(255,255,255,0.08);
+  }
+  .sentence-display .slot {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    min-width: 32px;
+    text-align: center;
+    padding: 2px 4px;
+  }
+  .sentence-display .slot.filled {
+    color: var(--gold);
+    font-weight: 700;
+    background: rgba(245,166,35,0.08);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .sentence-display .slot.past { color: var(--green); }
+  .sentence-display .slot.to { color: var(--red); }
+
+  .word-banks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .word-bank {
+    background: rgba(0,0,0,0.15);
+    border-radius: 10px;
+    padding: 6px 8px;
+    min-height: 50px;
+  }
+  .word-bank .bank-label {
+    font-size: 0.5rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .word-bank .words {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .word-chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-primary);
+  }
+  .word-chip:hover { background: rgba(245,166,35,0.12); border-color: var(--gold); }
+  .word-chip.used {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .word-chip.clear-btn {
+    background: rgba(231,76,94,0.12);
+    border-color: rgba(231,76,94,0.2);
+    color: var(--red);
+  }
+  .word-chip.clear-btn:hover { background: rgba(231,76,94,0.2); }
+
+  /* ===== EXPLORE PAGE ===== */
+  .explore-intro {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 16px;
+    margin-bottom: 16px;
+  }
+  .explore-intro .globe-icon {
+    font-size: 3.5rem;
+    display: block;
+    margin-bottom: 6px;
+    color: var(--gold);
+    animation: spinGlobe 10s linear infinite;
+  }
+  @keyframes spinGlobe { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  .explore-intro h2 { font-family: 'Orbitron', monospace; font-size: 1.2rem; }
+  .explore-intro h2 i { margin-right: 6px; color: var(--gold); }
+  .explore-intro p { color: var(--text-muted); font-size: 0.85rem; }
+
+  /* World Clock Task */
+  .world-clock-task {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .world-clock-task .task-title {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .world-clock-task .task-title i { margin-right: 4px; color: var(--gold); }
+  .world-clock-task .mini-clock {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: white;
+    position: relative;
+    margin: 0 auto 8px;
+    display: inline-block;
+  }
+  .world-clock-task .mini-clock .hand {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform-origin: bottom center;
+    border-radius: 4px;
+  }
+  .world-clock-task .mini-clock .hour-hand {
+    width: 3px;
+    height: 22px;
+    background: #1a1a2e;
+    transform: translateX(-50%) rotate(0deg);
+  }
+  .world-clock-task .mini-clock .minute-hand {
+    width: 2px;
+    height: 30px;
+    background: #2c3e50;
+    transform: translateX(-50%) rotate(0deg);
+  }
+  .world-clock-task .mini-clock .center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: #1a1a2e;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+  }
+  .world-clock-task .time-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .world-clock-task .time-options button {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.03);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.7rem;
+  }
+  .world-clock-task .time-options button:hover { background: rgba(255,255,255,0.06); }
+  .world-clock-task .time-options button.correct { border-color: var(--green); background: rgba(46,204,113,0.12); }
+  .world-clock-task .time-options button.wrong { border-color: var(--red); background: rgba(231,76,94,0.12); }
+
+  /* ===== CITY GRID ===== */
+  .cities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  .city-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 14px;
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .city-card:hover {
+    border-color: rgba(245,166,35,0.2);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  }
+  .city-card .city-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 0 auto 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    background: rgba(245,166,35,0.08);
+    border: 1px solid rgba(245,166,35,0.1);
+  }
+  .city-card .city-image i { color: var(--gold); }
+  .city-card .name { font-weight: 600; font-size: 0.8rem; }
+  .city-card .landmark { font-size: 0.6rem; color: var(--text-muted); }
+  .city-card .time-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    color: var(--gold);
+    margin-top: 4px;
+  }
+
+  /* ===== ACTIVITIES ===== */
+  .activity-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .activity-card .q { font-size: 1rem; margin-bottom: 10px; }
+  .activity-card .q b { color: var(--gold); }
+  .activity-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .activity-options button {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.03);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .activity-options button:hover { background: rgba(255,255,255,0.06); }
+  .activity-options button.correct { border-color: var(--green); background: rgba(46,204,113,0.12); }
+  .activity-options button.wrong { border-color: var(--red); background: rgba(231,76,94,0.12); }
+  .activity-options button:disabled { cursor: not-allowed; opacity: 0.5; }
+
+  .activity-feedback {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    display: none;
+  }
+  .activity-feedback.show { display: block; }
+  .activity-feedback.ok { background: rgba(46,204,113,0.08); border: 1px solid rgba(46,204,113,0.15); color: var(--green); }
+  .activity-feedback.no { background: rgba(231,76,94,0.08); border: 1px solid rgba(231,76,94,0.15); color: var(--red); }
+
+  /* ===== MATCHING ACTIVITY ===== */
+  .match-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .match-col {
+    flex: 1;
+    min-width: 120px;
+  }
+  .match-col .match-label {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .match-item {
+    padding: 8px 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    margin-bottom: 4px;
+    background: rgba(255,255,255,0.03);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .match-item:hover { border-color: rgba(245,166,35,0.2); }
+  .match-item.selected { border-color: var(--gold); background: rgba(245,166,35,0.08); }
+  .match-item.matched {
+    border-color: var(--green);
+    background: rgba(46,204,113,0.08);
+    cursor: default;
+    opacity: 0.6;
+  }
+  .match-item.wrong-match {
+    border-color: var(--red);
+    background: rgba(231,76,94,0.08);
+    animation: shake 0.4s ease;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    60% { transform: translateX(6px); }
+  }
+
+  /* ===== REWARDS ===== */
+  .rewards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 12px;
+  }
+  .reward-item {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 14px;
+    padding: 14px 10px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .reward-item .reward-icon {
+    font-size: 2.2rem;
+    display: block;
+    color: var(--gold);
+  }
+  .reward-item .name { font-size: 0.65rem; font-weight: 600; margin-top: 4px; }
+  .reward-item .cost {
+    font-size: 0.55rem;
+    color: var(--text-muted);
+    background: rgba(0,0,0,0.2);
+    padding: 2px 8px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .reward-item .cost i { margin-right: 2px; }
+  .reward-item .status {
+    font-size: 0.5rem;
+    margin-top: 4px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+  .reward-item .status.unlocked { background: rgba(46,204,113,0.12); color: var(--green); }
+  .reward-item .status.locked { background: rgba(231,76,94,0.08); color: var(--red); }
+  .reward-item .claim-btn {
+    background: rgba(46,204,113,0.12);
+    border: 1px solid rgba(46,204,113,0.2);
+    color: var(--green);
+    border-radius: 30px;
+    padding: 4px 14px;
+    cursor: pointer;
+    font-size: 0.6rem;
+    margin-top: 4px;
+  }
+  .reward-item .claim-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  @media (max-width: 500px) {
+    .avatar-box { padding: 24px 16px; }
+    .avatar-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .avatar-option .avatar-icon { font-size: 1.6rem; }
+    .avatar-box h1 { font-size: 1.3rem; }
+    .nav-tab { font-size: 0.65rem; padding: 8px 6px; }
+    .nav-tab i { margin-right: 2px; }
+    .analog-clock { width: 110px; height: 110px; }
+    .analog-clock .hour-hand { height: 28px; }
+    .analog-clock .minute-hand { height: 38px; }
+    .analog-clock .second-hand { height: 42px; }
+    .digital-time { font-size: 1.2rem; }
+    .activity-options { grid-template-columns: 1fr; }
+    .word-banks { grid-template-columns: 1fr; }
+    .world-clock-task .time-options { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== NOTIFICATION BANNER ===== -->
+<div class="notification-banner" id="notificationBanner">
+  <i class="fas fa-gem"></i>
+  <span id="notificationText">You unlocked a reward!</span>
+  <button class="close-btn" id="closeNotification"><i class="fas fa-times"></i></button>
+</div>
+
+<!-- ===== AVATAR OVERLAY ===== -->
+<div class="avatar-overlay" id="avatarOverlay">
+  <div class="avatar-box">
+    <h1><i class="fas fa-globe-americas"></i> Time Travel Explorers</h1>
+    <div class="sub">Choose your explorer identity</div>
+
+    <div class="avatar-grid" id="avatarGrid">
+      <div class="avatar-option selected" data-avatar="🧑‍🚀">
+        <span class="avatar-icon"><i class="fas fa-user-astronaut"></i></span>
+        <span class="name">Astronaut</span>
+      </div>
+      <div class="avatar-option" data-avatar="🧙‍♂️">
+        <span class="avatar-icon"><i class="fas fa-hat-wizard"></i></span>
+        <span class="name">Wizard</span>
+      </div>
+      <div class="avatar-option" data-avatar="🕵️‍♂️">
+        <span class="avatar-icon"><i class="fas fa-user-secret"></i></span>
+        <span class="name">Detective</span>
+      </div>
+      <div class="avatar-option" data-avatar="🧜‍♀️">
+        <span class="avatar-icon"><i class="fas fa-water"></i></span>
+        <span class="name">Mermaid</span>
+      </div>
+      <div class="avatar-option" data-avatar="🤖">
+        <span class="avatar-icon"><i class="fas fa-robot"></i></span>
+        <span class="name">Robot</span>
+      </div>
+      <div class="avatar-option" data-avatar="🧝‍♀️">
+        <span class="avatar-icon"><i class="fas fa-leaf"></i></span>
+        <span class="name">Elf</span>
+      </div>
+      <div class="avatar-option" data-avatar="🦸‍♂️">
+        <span class="avatar-icon"><i class="fas fa-star"></i></span>
+        <span class="name">Hero</span>
+      </div>
+      <div class="avatar-option" data-avatar="🧚‍♀️">
+        <span class="avatar-icon"><i class="fas fa-wand-magic-sparkles"></i></span>
+        <span class="name">Fairy</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="playerName"><i class="fas fa-user"></i> Your Name</label>
+      <input type="text" id="playerName" placeholder="Enter your name..." value="Explorer">
+      <div class="hint">What should we call you on your journey?</div>
+    </div>
+
+    <div class="form-group">
+      <label for="playerAge"><i class="fas fa-cake-candles"></i> Your Age</label>
+      <input type="number" id="playerAge" placeholder="How old are you?" min="5" max="99" value="12">
+      <div class="hint">Tell us your age</div>
+    </div>
+
+    <button class="start-btn" id="startBtn"><i class="fas fa-rocket"></i> Start Your Journey</button>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div class="app" id="app">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <span class="brand"><i class="fas fa-globe-americas"></i> Time Travel Explorers</span>
+    <div class="user-info">
+      <span class="avatar-icon" id="displayAvatar">E</span>
+      <span id="displayName">Explorer</span>
+      <span class="coins" id="coinsDisplay"><i class="fas fa-coins"></i> <span id="coinDisplay">0</span></span>
+    </div>
+  </div>
+
+  <!-- NAV TABS -->
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-page="home"><i class="fas fa-home"></i> Home</button>
+    <button class="nav-tab" data-page="explore"><i class="fas fa-globe-asia"></i> Explore</button>
+    <button class="nav-tab" data-page="activities"><i class="fas fa-gamepad"></i> Activities</button>
+    <button class="nav-tab" data-page="rewards"><i class="fas fa-trophy"></i> Rewards</button>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="clock-section">
+      <div class="clock-card">
+        <div class="label"><i class="far fa-clock"></i> Current Time</div>
+        <div class="analog-clock" id="analogClock">
+          <div class="hand hour-hand" id="hourHand"></div>
+          <div class="hand minute-hand" id="minuteHand"></div>
+          <div class="hand second-hand" id="secondHand"></div>
+          <div class="center"></div>
+          <span class="number number-12">12</span>
+          <span class="number number-1">1</span>
+          <span class="number number-2">2</span>
+          <span class="number number-3">3</span>
+          <span class="number number-4">4</span>
+          <span class="number number-5">5</span>
+          <span class="number number-6">6</span>
+          <span class="number number-7">7</span>
+          <span class="number number-8">8</span>
+          <span class="number number-9">9</span>
+          <span class="number number-10">10</span>
+          <span class="number number-11">11</span>
+        </div>
+        <div class="digital-time" id="digitalTime">00:00 <span class="ampm">AM</span></div>
+      </div>
+
+      <div class="clock-card">
+        <div class="label"><i class="fas fa-city"></i> City Times</div>
+        <div class="city-times" id="cityTimes"></div>
+      </div>
+    </div>
+
+    <!-- Time Sentence Builder -->
+    <div class="sentence-builder">
+      <div class="title"><i class="fas fa-pen-fancy"></i> Time Sentence Builder</div>
+      <div class="sentence-display" id="sentenceDisplay">
+        <span class="slot">IT</span>
+        <span class="slot">IS</span>
+        <span class="slot" id="slot1">___</span>
+        <span class="slot" id="slot2">___</span>
+        <span class="slot" id="slot3">___</span>
+        <span class="slot" id="slot4">___</span>
+        <span class="slot" id="slot5">___</span>
+      </div>
+      <div class="word-banks">
+        <div class="word-bank">
+          <div class="bank-label">Bank 1</div>
+          <div class="words" id="bank1">
+            <span class="word-chip" data-word="HALF">HALF</span>
+            <span class="word-chip" data-word="QUARTER">QUARTER</span>
+            <span class="word-chip" data-word="TEN">TEN</span>
+            <span class="word-chip" data-word="FIVE">FIVE</span>
+            <span class="word-chip" data-word="TWENTY">TWENTY</span>
+            <span class="word-chip" data-word="PAST">PAST</span>
+            <span class="word-chip" data-word="TO">TO</span>
+          </div>
+        </div>
+        <div class="word-bank">
+          <div class="bank-label">Bank 2 (Numbers)</div>
+          <div class="words" id="bank2">
+            <span class="word-chip" data-word="ONE">ONE</span>
+            <span class="word-chip" data-word="TWO">TWO</span>
+            <span class="word-chip" data-word="THREE">THREE</span>
+            <span class="word-chip" data-word="FOUR">FOUR</span>
+            <span class="word-chip" data-word="FIVE">FIVE</span>
+            <span class="word-chip" data-word="SIX">SIX</span>
+            <span class="word-chip" data-word="SEVEN">SEVEN</span>
+            <span class="word-chip" data-word="EIGHT">EIGHT</span>
+            <span class="word-chip" data-word="NINE">NINE</span>
+            <span class="word-chip" data-word="TEN">TEN</span>
+            <span class="word-chip" data-word="ELEVEN">ELEVEN</span>
+            <span class="word-chip" data-word="TWELVE">TWELVE</span>
+            <span class="word-chip clear-btn" id="clearSentence"><i class="fas fa-eraser"></i> CLEAR</span>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:8px;">
+        <button class="word-chip" style="background:rgba(46,204,113,0.12);border-color:rgba(46,204,113,0.2);color:var(--green);" id="checkSentence"><i class="fas fa-check"></i> Check Time</button>
+        <span id="sentenceFeedback" style="margin-left:10px;font-size:0.8rem;color:var(--text-muted);"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLORE -->
+  <div class="page" id="page-explore">
+    <div class="explore-intro">
+      <span class="globe-icon"><i class="fas fa-globe-americas"></i></span>
+      <h2><i class="fas fa-compass"></i> Explore the World</h2>
+      <p>Tap on a city to learn about it and earn coins!</p>
+    </div>
+
+    <!-- World Clock Task -->
+    <div class="world-clock-task">
+      <div class="task-title"><i class="fas fa-clock"></i> What time is it?</div>
+      <div class="mini-clock" id="worldClock">
+        <div class="hand hour-hand" id="worldHourHand"></div>
+        <div class="hand minute-hand" id="worldMinuteHand"></div>
+        <div class="center"></div>
+      </div>
+      <div style="font-family:'Orbitron',monospace;font-size:0.9rem;margin-bottom:4px;" id="worldDigitalTime">--:--</div>
+      <div class="time-options" id="worldTimeOptions">
+        <button data-time="0">Half past seven</button>
+        <button data-time="1">Quarter past two</button>
+        <button data-time="2">Quarter to ten</button>
+        <button data-time="3">Half past five</button>
+        <button data-time="4">Quarter past eleven</button>
+        <button data-time="5">Quarter to four</button>
+      </div>
+      <div id="worldClockFeedback" style="margin-top:6px;font-size:0.8rem;"></div>
+    </div>
+
+    <div class="cities-grid" id="citiesGrid"></div>
+  </div>
+
+  <!-- ACTIVITIES -->
+  <div class="page" id="page-activities">
+    <div id="activityContainer"></div>
+  </div>
+
+  <!-- REWARDS -->
+  <div class="page" id="page-rewards">
+    <div class="rewards-grid" id="rewardsGrid"></div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const citiesData = [
+  { id: 'london', name: 'London', icon: 'fas fa-landmark', landmark: 'Big Ben', offset: 0 },
+  { id: 'paris', name: 'Paris', icon: 'fas fa-tower-broadcast', landmark: 'Eiffel Tower', offset: 1 },
+  { id: 'tokyo', name: 'Tokyo', icon: 'fas fa-mountain', landmark: 'Mt. Fuji', offset: 9 },
+  { id: 'sydney', name: 'Sydney', icon: 'fas fa-music', landmark: 'Opera House', offset: 11 },
+  { id: 'newyork', name: 'New York', icon: 'fas fa-statue-of-liberty', landmark: 'Statue of Liberty', offset: -5 },
+  { id: 'rio', name: 'Rio', icon: 'fas fa-hill-rockslide', landmark: 'Christ the Redeemer', offset: -3 }
+];
+
+const activities = [
+  { type: 'quiz', q: 'What time is it when the clock shows <b>7:30</b>?', options: ['Half past seven', 'Quarter past seven', 'Seven thirty', 'Half to eight'], correct: 0 },
+  { type: 'quiz', q: 'What time is it when the clock shows <b>2:15</b>?', options: ['Quarter past two', 'Half past two', 'Quarter to two', 'Fifteen past two'], correct: 0 },
+  { type: 'match', title: 'Match the time with the correct sentence', pairs: [
+    { left: '7:30', right: 'Half past seven' },
+    { left: '2:15', right: 'Quarter past two' },
+    { left: '9:45', right: 'Quarter to ten' }
+  ]},
+  { type: 'match', title: 'Match the time with the correct sentence', pairs: [
+    { left: '5:30', right: 'Half past five' },
+    { left: '11:15', right: 'Quarter past eleven' },
+    { left: '3:45', right: 'Quarter to four' }
+  ]},
+  { type: 'quiz', q: 'What time is it when the clock shows <b>12:30</b>?', options: ['Half past twelve', 'Quarter past twelve', 'Twelve thirty', 'Half to one'], correct: 0 },
+  { type: 'quiz', q: 'What time is it when the clock shows <b>6:15</b>?', options: ['Quarter past six', 'Half past six', 'Quarter to six', 'Fifteen past six'], correct: 0 }
+];
+
+const rewards = [
+  { id: 'rocket', icon: 'fas fa-rocket', name: 'Rocket Explorer', cost: 5 },
+  { id: 'moon', icon: 'fas fa-moon', name: 'Moon Walker', cost: 10 },
+  { id: 'star', icon: 'fas fa-star', name: 'Star Collector', cost: 15 },
+  { id: 'galaxy', icon: 'fas fa-spiral', name: 'Galaxy Traveller', cost: 20 },
+  { id: 'time', icon: 'fas fa-hourglass-half', name: 'Time Master', cost: 30 },
+  { id: 'portal', icon: 'fas fa-circle-h', name: 'Portal Creator', cost: 50 }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  avatar: '🧑‍🚀',
+  avatarName: 'Astronaut',
+  name: 'Explorer',
+  age: 12,
+  coins: 0,
+  unlockedRewards: [],
+  currentActivity: 0,
+  sentenceSlots: ['___', '___', '___', '___', '___'],
+  worldClockIndex: 0,
+  worldClockAnswered: false,
+  matchedPairs: [],
+  currentMatchLeft: null,
+  currentMatchRight: null
+};
+
+// ============================================================
+// NOTIFICATION SYSTEM
+// ============================================================
+function showNotification(message) {
+  const banner = document.getElementById('notificationBanner');
+  document.getElementById('notificationText').textContent = message;
+  banner.classList.add('show');
+  setTimeout(() => {
+    banner.classList.remove('show');
+  }, 5000);
+}
+
+document.getElementById('closeNotification').addEventListener('click', () => {
+  document.getElementById('notificationBanner').classList.remove('show');
+});
+
+// ============================================================
+// AVATAR SELECTION
+// ============================================================
+document.querySelectorAll('.avatar-option').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    state.avatar = el.dataset.avatar;
+    state.avatarName = el.querySelector('.name').textContent;
+  });
+});
+
+document.getElementById('startBtn').addEventListener('click', () => {
+  state.name = document.getElementById('playerName').value.trim() || 'Explorer';
+  state.age = parseInt(document.getElementById('playerAge').value) || 12;
+
+  document.getElementById('avatarOverlay').classList.add('hidden');
+  document.getElementById('app').classList.add('active');
+
+  document.getElementById('displayAvatar').textContent = state.name.charAt(0).toUpperCase();
+  document.getElementById('displayName').textContent = state.name;
+  updateCoinDisplay();
+
+  initClock();
+  initCityTimes();
+  initSentenceBuilder();
+  initWorldClock();
+  renderCities();
+  renderActivity();
+  renderRewards();
+});
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const page = tab.dataset.page;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+  });
+});
+
+// ============================================================
+// CLOCK
+// ============================================================
+function initClock() {
+  updateClock();
+  setInterval(updateClock, 1000);
+}
+
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const s = now.getSeconds();
+
+  const h12 = h % 12 || 12;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  document.getElementById('digitalTime').innerHTML =
+    `${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')} <span class="ampm">${ampm}</span>`;
+
+  document.getElementById('hourHand').style.transform = `translateX(-50%) rotate(${(h%12)*30 + m*0.5}deg)`;
+  document.getElementById('minuteHand').style.transform = `translateX(-50%) rotate(${m*6 + s*0.1}deg)`;
+  document.getElementById('secondHand').style.transform = `translateX(-50%) rotate(${s*6}deg)`;
+}
+
+// ============================================================
+// CITY TIMES
+// ============================================================
+function initCityTimes() {
+  updateCityTimes();
+  setInterval(updateCityTimes, 10000);
+}
+
+function updateCityTimes() {
+  const now = new Date();
+  const container = document.getElementById('cityTimes');
+  container.innerHTML = '';
+  citiesData.forEach(city => {
+    const cityTime = new Date(now.getTime() + city.offset * 3600000);
+    const h = cityTime.getHours();
+    const m = cityTime.getMinutes();
+    const h12 = h % 12 || 12;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const div = document.createElement('div');
+    div.className = 'city-time-item';
+    div.innerHTML = `
+      <span class="city-icon"><i class="${city.icon}"></i></span>
+      <div class="city-name">${city.name}</div>
+      <div class="city-time">${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ampm}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// ============================================================
+// SENTENCE BUILDER
+// ============================================================
+function initSentenceBuilder() {
+  document.querySelectorAll('#bank1 .word-chip, #bank2 .word-chip').forEach(chip => {
+    if (chip.id === 'clearSentence') return;
+    chip.addEventListener('click', () => {
+      if (chip.classList.contains('used')) return;
+      const word = chip.dataset.word;
+      const emptyIndex = state.sentenceSlots.indexOf('___');
+      if (emptyIndex === -1) return;
+      state.sentenceSlots[emptyIndex] = word;
+      chip.classList.add('used');
+      updateSentenceDisplay();
+    });
+  });
+
+  document.getElementById('clearSentence').addEventListener('click', clearSentence);
+  document.getElementById('checkSentence').addEventListener('click', checkSentence);
+}
+
+function updateSentenceDisplay() {
+  const slots = ['slot1','slot2','slot3','slot4','slot5'];
+  slots.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.textContent = state.sentenceSlots[i] || '___';
+    el.className = 'slot' + (state.sentenceSlots[i] !== '___' ? ' filled' : '');
+    if (state.sentenceSlots[i] === 'PAST') el.classList.add('past');
+    if (state.sentenceSlots[i] === 'TO') el.classList.add('to');
+  });
+}
+
+function clearSentence() {
+  state.sentenceSlots = ['___', '___', '___', '___', '___'];
+  document.querySelectorAll('#bank1 .word-chip, #bank2 .word-chip').forEach(chip => {
+    if (chip.id === 'clearSentence') return;
+    chip.classList.remove('used');
+  });
+  updateSentenceDisplay();
+  document.getElementById('sentenceFeedback').textContent = '';
+}
+
+function checkSentence() {
+  const hasEmpty = state.sentenceSlots.some(s => s === '___');
+  if (hasEmpty) {
+    document.getElementById('sentenceFeedback').textContent = '❌ Fill all slots!';
+    document.getElementById('sentenceFeedback').style.color = 'var(--red)';
+    return;
+  }
+  const sentence = state.sentenceSlots.join(' ');
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const h12 = h % 12 || 12;
+  let expected = '';
+  if (m === 0) expected = `${h12} O'CLOCK`;
+  else if (m === 15) expected = `QUARTER PAST ${h12}`;
+  else if (m === 30) expected = `HALF PAST ${h12}`;
+  else if (m === 45) expected = `QUARTER TO ${h12 + 1}`;
+  else if (m < 30) expected = `${m} PAST ${h12}`;
+  else expected = `${60 - m} TO ${h12 + 1}`;
+
+  const normalizedSentence = sentence.replace(/[^A-Z0-9']/g, '');
+  const normalizedExpected = expected.replace(/[^A-Z0-9']/g, '');
+
+  if (normalizedSentence === normalizedExpected) {
+    document.getElementById('sentenceFeedback').textContent = '✅ Correct! ⭐ +1';
+    document.getElementById('sentenceFeedback').style.color = 'var(--green)';
+    state.coins += 1;
+    updateCoinDisplay();
+    checkRewardUnlocks();
+    createSparkles();
+  } else {
+    document.getElementById('sentenceFeedback').textContent = `❌ Try again. Expected: "${expected}"`;
+    document.getElementById('sentenceFeedback').style.color = 'var(--red)';
+  }
+}
+
+// ============================================================
+// WORLD CLOCK (Explore Page)
+// ============================================================
+const worldClockTimes = [
+  { hour: 7, minute: 30, label: 'Half past seven' },
+  { hour: 2, minute: 15, label: 'Quarter past two' },
+  { hour: 9, minute: 45, label: 'Quarter to ten' },
+  { hour: 5, minute: 30, label: 'Half past five' },
+  { hour: 11, minute: 15, label: 'Quarter past eleven' },
+  { hour: 3, minute: 45, label: 'Quarter to four' }
+];
+
+function initWorldClock() {
+  state.worldClockIndex = Math.floor(Math.random() * worldClockTimes.length);
+  state.worldClockAnswered = false;
+  updateWorldClock();
+  setupWorldClockButtons();
+}
+
+function updateWorldClock() {
+  const time = worldClockTimes[state.worldClockIndex];
+  const hourDeg = time.hour * 30 + time.minute * 0.5;
+  const minDeg = time.minute * 6;
+  document.getElementById('worldHourHand').style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
+  document.getElementById('worldMinuteHand').style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
+  document.getElementById('worldDigitalTime').textContent =
+    `${String(time.hour).padStart(2,'0')}:${String(time.minute).padStart(2,'0')}`;
+  document.getElementById('worldClockFeedback').textContent = '';
+  document.querySelectorAll('#worldTimeOptions button').forEach(btn => {
+    btn.disabled = false;
+    btn.className = '';
+  });
+  state.worldClockAnswered = false;
+}
+
+function setupWorldClockButtons() {
+  document.querySelectorAll('#worldTimeOptions button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (state.worldClockAnswered) return;
+      const selected = parseInt(btn.dataset.time);
+      const correct = state.worldClockIndex;
+      const isCorrect = selected === correct;
+      const feedback = document.getElementById('worldClockFeedback');
+      document.querySelectorAll('#worldTimeOptions button').forEach(b => b.disabled = true);
+      if (isCorrect) {
+        feedback.innerHTML = '✅ Correct! ⭐ +1';
+        feedback.style.color = 'var(--green)';
+        btn.classList.add('correct');
+        state.coins += 1;
+        updateCoinDisplay();
+        checkRewardUnlocks();
+        createSparkles();
+        // New clock after 2 seconds
+        setTimeout(() => {
+          state.worldClockIndex = Math.floor(Math.random() * worldClockTimes.length);
+          state.worldClockAnswered = false;
+          updateWorldClock();
+        }, 1500);
+      } else {
+        feedback.innerHTML = `❌ The correct answer was: "${worldClockTimes[correct].label}"`;
+        feedback.style.color = 'var(--red)';
+        btn.classList.add('wrong');
+        document.querySelectorAll('#worldTimeOptions button')[correct].classList.add('correct');
+        state.worldClockAnswered = true;
+      }
+    });
+  });
+}
+
+// ============================================================
+// EXPLORE - CITIES
+// ============================================================
+function renderCities() {
+  const grid = document.getElementById('citiesGrid');
+  grid.innerHTML = '';
+  citiesData.forEach(city => {
+    const div = document.createElement('div');
+    div.className = 'city-card';
+    div.innerHTML = `
+      <div class="city-image"><i class="${city.icon}"></i></div>
+      <div class="name">${city.name}</div>
+      <div class="landmark">${city.landmark}</div>
+      <div class="time-label"><i class="far fa-clock"></i> --:--</div>
+    `;
+    div.addEventListener('click', () => {
+      const now = new Date();
+      const cityTime = new Date(now.getTime() + city.offset * 3600000);
+      const h = cityTime.getHours();
+      const m = cityTime.getMinutes();
+      const h12 = h % 12 || 12;
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      alert(`🌍 ${city.name}\n🕐 ${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ampm}\n🏛️ ${city.landmark}\n\n⭐ You earned 1 coin for exploring!`);
+      state.coins += 1;
+      updateCoinDisplay();
+      checkRewardUnlocks();
+      createSparkles();
+    });
+    grid.appendChild(div);
+  });
+}
+
+// ============================================================
+// ACTIVITIES
+// ============================================================
+function renderActivity() {
+  const container = document.getElementById('activityContainer');
+  container.innerHTML = '';
+  const activity = activities[state.currentActivity];
+
+  const div = document.createElement('div');
+  div.className = 'activity-card';
+
+  if (activity.type === 'quiz') {
+    div.innerHTML = `
+      <div class="q">${activity.q}</div>
+      <div class="activity-options" id="activityOptions">
+        ${activity.options.map((opt, i) => `<button data-i="${i}">${opt}</button>`).join('')}
+      </div>
+      <div class="activity-feedback" id="activityFeedback"></div>
+      <div style="margin-top:10px;text-align:center;">
+        <span style="color:var(--text-muted);font-size:0.7rem;">Activity ${state.currentActivity+1} of ${activities.length}</span>
+        ${state.currentActivity < activities.length - 1 ? `<button style="background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.2);color:var(--gold);border-radius:30px;padding:6px 16px;cursor:pointer;font-size:0.7rem;margin-left:8px;" id="nextActivity"><i class="fas fa-arrow-right"></i> Next</button>` : '<span style="color:var(--green);margin-left:8px;"><i class="fas fa-check-circle"></i> All done!</span>'}
+      </div>
+    `;
+    container.appendChild(div);
+
+    document.querySelectorAll('#activityOptions button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const selected = parseInt(btn.dataset.i);
+        const isCorrect = selected === activity.correct;
+        const feedback = document.getElementById('activityFeedback');
+        feedback.classList.add('show');
+        document.querySelectorAll('#activityOptions button').forEach(b => b.disabled = true);
+        if (isCorrect) {
+          feedback.className = 'activity-feedback show ok';
+          feedback.innerHTML = '<i class="fas fa-check-circle"></i> Correct! <i class="fas fa-star" style="color:var(--gold);"></i> +1';
+          state.coins += 1;
+          updateCoinDisplay();
+          checkRewardUnlocks();
+          createSparkles();
+          btn.classList.add('correct');
+        } else {
+          feedback.className = 'activity-feedback show no';
+          feedback.innerHTML = `<i class="fas fa-times-circle"></i> The correct answer was: "${activity.options[activity.correct]}"`;
+          btn.classList.add('wrong');
+          document.querySelectorAll('#activityOptions button')[activity.correct].classList.add('correct');
+        }
+      });
+    });
+  } else if (activity.type === 'match') {
+    // Matching activity
+    state.matchedPairs = [];
+    state.currentMatchLeft = null;
+    state.currentMatchRight = null;
+    const shuffledLeft = [...activity.pairs].sort(() => Math.random() - 0.5);
+    const shuffledRight = [...activity.pairs].sort(() => Math.random() - 0.5);
+
+    div.innerHTML = `
+      <div class="q">${activity.title}</div>
+      <div class="match-container">
+        <div class="match-col">
+          <div class="match-label">🕐 Time</div>
+          <div id="matchLeft">
+            ${shuffledLeft.map((p, i) => `<div class="match-item" data-pair="${i}" data-side="left">${p.left}</div>`).join('')}
+          </div>
+        </div>
+        <div class="match-col">
+          <div class="match-label">📝 Sentence</div>
+          <div id="matchRight">
+            ${shuffledRight.map((p, i) => `<div class="match-item" data-pair="${i}" data-side="right">${p.right}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div id="matchFeedback" style="margin-top:8px;font-size:0.8rem;"></div>
+      <div style="margin-top:10px;text-align:center;">
+        <span style="color:var(--text-muted);font-size:0.7rem;">Match each time with the correct sentence</span>
+        ${state.currentActivity < activities.length - 1 ? `<button style="background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.2);color:var(--gold);border-radius:30px;padding:6px 16px;cursor:pointer;font-size:0.7rem;margin-left:8px;" id="nextActivity"><i class="fas fa-arrow-right"></i> Next</button>` : '<span style="color:var(--green);margin-left:8px;"><i class="fas fa-check-circle"></i> All done!</span>'}
+      </div>
+    `;
+    container.appendChild(div);
+
+    setupMatching(activity.pairs);
+  }
+
+  const nextBtn = document.getElementById('nextActivity');
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      state.currentActivity++;
+      renderActivity();
+    });
+  }
+}
+
+function setupMatching(pairs) {
+  const leftItems = document.querySelectorAll('#matchLeft .match-item');
+  const rightItems = document.querySelectorAll('#matchRight .match-item');
+  const feedback = document.getElementById('matchFeedback');
+
+  let selectedLeft = null;
+  let selectedRight = null;
+
+  leftItems.forEach(item => {
+    item.addEventListener('click', () => {
+      if (item.classList.contains('matched')) return;
+      leftItems.forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+      selectedLeft = item;
+      checkMatch();
+    });
+  });
+
+  rightItems.forEach(item => {
+    item.addEventListener('click', () => {
+      if (item.classList.contains('matched')) return;
+      rightItems.forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+      selectedRight = item;
+      checkMatch();
+    });
+  });
+
+  function checkMatch() {
+    if (!selectedLeft || !selectedRight) return;
+    const leftText = selectedLeft.textContent.trim();
+    const rightText = selectedRight.textContent.trim();
+    const isMatch = pairs.some(p => p.left === leftText && p.right === rightText);
+
+    if (isMatch) {
+      selectedLeft.classList.remove('selected');
+      selectedRight.classList.remove('selected');
+      selectedLeft.classList.add('matched');
+      selectedRight.classList.add('matched');
+      selectedLeft.style.pointerEvents = 'none';
+      selectedRight.style.pointerEvents = 'none';
+      feedback.innerHTML = '✅ Correct match! ⭐ +1';
+      feedback.style.color = 'var(--green)';
+      state.coins += 1;
+      updateCoinDisplay();
+      checkRewardUnlocks();
+      createSparkles();
+      selectedLeft = null;
+      selectedRight = null;
+      
+      // Check if all matched
+      const allLeft = document.querySelectorAll('#matchLeft .match-item');
+      const allMatched = Array.from(allLeft).every(el => el.classList.contains('matched'));
+      if (allMatched) {
+        feedback.innerHTML = '🎉 All matched! Great job!';
+        feedback.style.color = 'var(--gold)';
+      }
+    } else {
+      selectedLeft.classList.add('wrong-match');
+      selectedRight.classList.add('wrong-match');
+      feedback.innerHTML = '❌ Not a match. Try again!';
+      feedback.style.color = 'var(--red)';
+      setTimeout(() => {
+        selectedLeft.classList.remove('wrong-match', 'selected');
+        selectedRight.classList.remove('wrong-match', 'selected');
+        selectedLeft = null;
+        selectedRight = null;
+      }, 600);
+    }
+  }
+}
+
+// ============================================================
+// REWARDS
+// ============================================================
+function renderRewards() {
+  const grid = document.getElementById('rewardsGrid');
+  grid.innerHTML = '';
+  rewards.forEach(reward => {
+    const unlocked = state.coins >= reward.cost;
+    const alreadyClaimed = state.unlockedRewards.includes(reward.id);
+    const div = document.createElement('div');
+    div.className = 'reward-item';
+    div.innerHTML = `
+      <span class="reward-icon"><i class="${reward.icon}"></i></span>
+      <div class="name">${reward.name}</div>
+      <div class="cost"><i class="fas fa-coins"></i> ${reward.cost}</div>
+      <div class="status ${unlocked ? 'unlocked' : 'locked'}"><i class="${unlocked ? 'fas fa-check-circle' : 'fas fa-lock'}"></i> ${alreadyClaimed ? 'Claimed ✅' : unlocked ? 'Unlocked' : 'Locked'}</div>
+      ${!alreadyClaimed && unlocked ? `<button class="claim-btn" data-reward="${reward.id}"><i class="fas fa-gem"></i> Claim</button>` : ''}
+    `;
+    grid.appendChild(div);
+  });
+
+  document.querySelectorAll('.claim-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.reward;
+      const reward = rewards.find(r => r.id === id);
+      if (state.coins >= reward.cost && !state.unlockedRewards.includes(id)) {
+        state.coins -= reward.cost;
+        state.unlockedRewards.push(id);
+        updateCoinDisplay();
+        renderRewards();
+        createSparkles();
+        showNotification(`🎉 You unlocked "${reward.name}"!`);
+      }
+    });
+  });
+}
+
+// ============================================================
+// REWARD UNLOCK CHECK
+// ============================================================
+function checkRewardUnlocks() {
+  const available = rewards.filter(r => state.coins >= r.cost && !state.unlockedRewards.includes(r.id));
+  if (available.length > 0) {
+    const reward = available[0];
+    showNotification(`💎 You can now unlock "${reward.name}" for ${reward.cost} coins! Go to Rewards!`);
+  }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function updateCoinDisplay() {
+  document.getElementById('coinDisplay').textContent = state.coins;
+}
+
+function createSparkles() {
+  const icons = ['fa-star', 'fa-gem', 'fa-heart', 'fa-crown'];
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.style.cssText = `position:fixed; pointer-events:none; z-index:999; font-size:${20+Math.random()*20}px; left:${10+Math.random()*80}%; top:${10+Math.random()*60}%; opacity:1; transition: all 0.8s ease-out; color: var(--gold);`;
+      el.innerHTML = `<i class="fas ${icons[Math.floor(Math.random() * icons.length)]}"></i>`;
+      document.body.appendChild(el);
+      setTimeout(() => { el.style.transform = 'translateY(-80px) scale(2)'; el.style.opacity = '0'; }, 50);
+      setTimeout(() => el.remove(), 900);
+    }, i * 100);
+  }
+}
+</script>
+</body>
+</html>
